@@ -1,0 +1,194 @@
+global key
+
+
+done = false;
+color = 0;
+
+%Color sensor stuf
+brick.SetColorMode(1, 2);
+brightness = brick.LightReflect(1); 
+
+while done ~= true
+    
+    color = brick.ColorCode(1);
+    disp(color);
+
+    %When on blue, keyboard, 2
+        bennett = 0;
+        if color == 2
+            brick.StopMotor('ABCD', 'Coast');
+            InitKeyboard();
+            while bennett == 0
+            
+            pause(0.05);
+            switch key
+                %Move forward
+                case 'w'
+                    disp('w Pressed');
+                    brick.MoveMotor('AD', 50);
+                    pause(0.125);
+                    brick.StopMotor('AD', 'Coast');
+                %Move backward
+                case 's'
+                    disp('s Pressed');
+                    brick.MoveMotor('AD', -50);
+                    pause(0.125);
+                    brick.StopMotor('AD', 'Coast');
+                %Turn left
+                case 'a'
+                    disp('a Pressed');
+                    brick.MoveMotor('A', 50);
+                    brick.MoveMotor('D', -50);
+                    pause(0.125);
+                    brick.StopMotor('AD', 'Coast');
+                %Turn right
+                case 'd'
+                    disp('d Pressed'); 
+                    brick.MoveMotor('D', 50);
+                    brick.MoveMotor('A', -50);
+                    pause(0.125);
+                    brick.StopMotor('AD', 'Coast');
+                case 'uparrow'
+                    disp('up Pressed'); 
+                    brick.MoveMotor('C', 10);
+                    pause(0.15);
+                    brick.StopMotor('C', 'Coast');
+                case 'downarrow'
+                    disp('down Pressed'); 
+                    brick.MoveMotor('C', -10);
+                    pause(0.15);
+                    brick.StopMotor('C', 'Coast');
+                case 0
+                    disp('No key pressed');
+                %Quit keyboard controls
+                case 'q'
+                    bennett = 1;
+                    CloseKeyboard();
+                    key = 0;
+                    
+                    break;
+                    
+            end
+            
+            end
+        %pause(1);
+        end    
+
+    distance = brick.UltrasonicDist(4);
+        disp(distance);
+        if distance < 5
+            done = true;
+        end
+
+    brick.MoveMotor('A', 30);
+    brick.MoveMotor('D', 30);
+    
+    
+    if (distance < 30) 
+        %Right turn?
+        %brick.MoveMotorAngleRel('A', 20, 270, 'Coast');
+        %brick.MoveMotorAngleRel ('D', 20, -270, 'Coast');
+        %brick.WaitForMotor('AD');
+        
+        brick.StopMotor('AD', 'Coast');
+        pause(0.1);
+        brick.MoveMotor('D', 29.5);
+        brick.MoveMotor('A', -30);
+        pause(1.265);
+        brick.StopMotor('AD', 'Coast');
+
+        distance = brick.UltrasonicDist(4);
+        disp(distance);
+        pause(1);
+        if (distance < 40)
+            %180 turn
+            %brick.MoveMotorAngleRel('A', 20, 540, 'Coast');
+            %brick.MoveMotorAngleRel ('D', 20, -540, 'Coast');
+            %brick.WaitForMotor('AD');
+            
+            brick.StopMotor('AD', 'Brake');
+            pause(0.1);
+            brick.MoveMotor('D', 29.5);
+            brick.MoveMotor('A', -30);
+            pause(2.35);
+            brick.StopMotor('AD', 'Coast');
+
+            distance = brick.UltrasonicDist(4);
+            disp(distance);
+            pause(1);
+            if (distance < 30)
+                %left turn
+                %brick.MoveMotorAngleRel('A', 20, -270, 'Coast');
+                %brick.MoveMotorAngleRel ('D', 20, 270, 'Coast');
+                %brick.WaitForMotor('AD');
+                
+                brick.StopMotor('AD', 'Brake');
+                pause(0.1);
+                brick.MoveMotor('D', -29.5);
+                brick.MoveMotor('A', 30);
+                pause(1.32);
+                brick.StopMotor('AD', 'Coast');
+                
+                distance = brick.UltrasonicDist(4);
+                disp(distance);
+                pause(1.2);
+            end
+        end
+    end
+
+
+    
+
+
+        
+        %When on red stop for 4 seconds
+        %if color == 5
+        %    pause(4);
+        %end
+        if color == 5
+            brick.StopMotor('AD', 'Brake');
+            pause(4);
+            brick.MoveMotor('AD', 30);
+            pause(1.5);
+        end   
+
+        %When on blue, go
+        bennet = 0;
+        if bennet ~= 0
+            while distance > 25
+                color = brick.ColorCode(1);
+                disp(color);
+                if color == 5
+                    brick.StopMotor('AD', 'Brake');
+                    pause(4);
+                    brick.MoveMotor('AD', 50);
+                    pause(1);
+                end
+                distance = brick.UltrasonicDist(4);
+                disp(distance);
+                brick.MoveMotor('AD', 50);
+            end
+            brick.StopMotor('AD', 'Brake');
+        end
+        
+        
+        
+
+        if color == 4
+            done = true;
+            brick.StopMotor('ABCD', 'Brake');
+            brick.MoveMotor('D', 29.5);
+            brick.MoveMotor('A', -30);
+            pause(2.35);
+            brick.StopMotor('ABCD', 'Brake');
+            brick.MoveMotor('C', -10);
+            pause(0.75);
+            brick.StopMotor('C', 'Coast');
+            brick.MoveMotor('AD', 30);
+            pause(2);
+            brick.StopMotor('ABCD', 'Brake');
+        end
+    
+end
+CloseKeyboard();
+
